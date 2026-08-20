@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Create Account</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>{{ form.username.label(style="font-weight:600;") }}{{ form.username(size=40, style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}{% for error in form.username.errors %}<span style="color:red;font-size:13px;">{{ error }}</span>{% endfor %}</div>
+    <div style="margin-top:12px;">{{ form.email.label(style="font-weight:600;") }}{{ form.email(size=40, style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}{% for error in form.email.errors %}<span style="color:red;font-size:13px;">{{ error }}</span>{% endfor %}</div>
+    <div style="margin-top:12px;">{{ form.password.label(style="font-weight:600;") }}{{ form.password(size=40, style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}</div>
+    <div style="margin-top:12px;">{{ form.confirm_password.label(style="font-weight:600;") }}{{ form.confirm_password(size=40, style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}</div>
+    <div style="margin-top:16px;">{{ form.submit(class="btn", style="background:#2563eb;color:#fff;padding:10px 30px;border:none;border-radius:8px;cursor:pointer;font-size:16px;") }}</div>
+</form>
+<p>Already have an account? <a href="/login">Login</a></p>
+
+<p style="color:var(--text-secondary);font-size:13px;margin-top:12px;">
+    <i class="fas fa-envelope"></i> You will receive a verification email after registration.
+</p>
+
+{% endblock %}

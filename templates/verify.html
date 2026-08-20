@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Verify Your Email</h1>
+<p style="color:var(--text-secondary);margin-bottom:16px;">
+    We've sent a 6-digit verification code to <strong>{{ user.email }}</strong>. 
+    Please enter it below to activate your account.
+</p>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.code.label(style="font-weight:600;") }}
+        {{ form.code(size=6, style="width:100%;max-width:200px;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font-size:20px;text-align:center;letter-spacing:10px;", placeholder="123456") }}
+        {% for error in form.code.errors %}
+            <span style="color:red;font-size:13px;display:block;">{{ error }}</span>
+        {% endfor %}
+    </div>
+    <div style="margin-top:16px;">
+        {{ form.submit(class="btn", style="background:#2563eb;color:#fff;padding:10px 30px;border:none;border-radius:8px;cursor:pointer;font-size:16px;") }}
+    </div>
+</form>
+<div style="margin-top:16px;">
+    <a href="{{ url_for('resend_code', user_id=user.id) }}" style="color:#2563eb;text-decoration:none;">Resend verification code</a>
+</div>
+<p style="margin-top:16px;"><a href="/">← Back to Home</a></p>
+{% endblock %}

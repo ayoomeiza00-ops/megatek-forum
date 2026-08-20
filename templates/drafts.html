@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>My Drafts</h1>
+<p><a href="/draft/new" style="background:#2563eb;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-block;margin-bottom:20px;">Create New Draft</a></p>
+{% if drafts %}{% for draft in drafts %}<div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;padding:16px;margin-bottom:12px;"><h3>{{ draft.title or 'Untitled Draft' }}</h3><div style="color:var(--text-muted);font-size:13px;margin:4px 0;">Last edited: {{ draft.updated_at.strftime('%b %d, %Y at %H:%M') }}</div><div style="display:flex;gap:12px;margin-top:8px;"><a href="{{ url_for('edit_draft', draft_id=draft.id) }}" style="color:#2563eb;text-decoration:none;">Edit</a><a href="{{ url_for('publish_draft', draft_id=draft.id) }}" style="color:#27ae60;text-decoration:none;">Publish</a><form method="POST" action="{{ url_for('delete_draft', draft_id=draft.id) }}" style="display:inline;"><button type="submit" style="background:none;border:none;color:#ef4444;cursor:pointer;" onclick="return confirm('Delete this draft?')">Delete</button></form></div></div>{% endfor %}{% else %}<p style="color:var(--text-muted);">No drafts saved yet.</p>{% endif %}
+<p><a href="/">← Back to Home</a></p>
+{% endblock %};

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Messages</h1>
+<p><a href="{{ url_for('send_message') }}" style="background:#2563eb;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-block;margin-bottom:20px;">Send New Message</a></p>
+<h3>Received</h3>
+{% if received %}{% for msg in received %}<div style="background:var(--hover-bg);padding:12px 16px;border-radius:8px;margin-bottom:8px;border-left:3px solid {% if not msg.read %}#2563eb{% else %}var(--border-color){% endif %};"><strong>From:</strong> <a href="/profile/{{ msg.sender.id }}">{{ msg.sender.username }}</a> <span style="color:var(--text-muted);font-size:13px;margin-left:12px;">{{ msg.timestamp.strftime('%b %d, %H:%M') }}</span><div style="font-size:14px;margin-top:4px;color:var(--text-secondary);">{{ msg.content[:100] }}{% if msg.content|length > 100 %}...{% endif %}</div><a href="{{ url_for('read_message', message_id=msg.id) }}" style="font-size:13px;color:#2563eb;text-decoration:none;">Read full message</a></div>{% endfor %}{% else %}<p style="color:var(--text-muted);">No messages received.</p>{% endif %}
+<h3 style="margin-top:30px;">Sent</h3>
+{% if sent %}{% for msg in sent %}<div style="background:var(--hover-bg);padding:12px 16px;border-radius:8px;margin-bottom:8px;border-left:3px solid var(--border-color);"><strong>To:</strong> <a href="/profile/{{ msg.receiver.id }}">{{ msg.receiver.username }}</a> <span style="color:var(--text-muted);font-size:13px;margin-left:12px;">{{ msg.timestamp.strftime('%b %d, %H:%M') }}</span><div style="font-size:14px;margin-top:4px;color:var(--text-secondary);">{{ msg.content[:100] }}{% if msg.content|length > 100 %}...{% endif %}</div></div>{% endfor %}{% else %}<p style="color:var(--text-muted);">No messages sent.</p>{% endif %}
+{% endblock %}

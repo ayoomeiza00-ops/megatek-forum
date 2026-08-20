@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="display:flex;align-items:center;gap:24px;margin-bottom:24px;flex-wrap:wrap;">
+    <!-- Avatar -->
+    <div style="width:80px;height:80px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;overflow:hidden;position:relative;">
+        {% if user.avatar %}
+            <img src="{{ url_for('static', filename='uploads/' + user.avatar) }}" style="width:100%;height:100%;object-fit:cover;">
+        {% else %}
+            {{ user.username[0]|upper }}
+        {% endif %}
+        <!-- Online Status Dot -->
+        {% if user.is_online %}
+            <span style="position:absolute;bottom:2px;right:2px;width:16px;height:16px;background:#22c55e;border-radius:50%;border:2px solid var(--bg-card);"></span>
+        {% endif %}
+    </div>
+
+    <!-- User Info -->
+    <div>
+        <h1 style="margin-bottom:4px;">
+            {{ user.username }}
+            {% if user.is_admin %}
+                <span style="background:#2563eb;color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;margin-left:8px;">Admin</span>
+            {% endif %}
+        </h1>
+        <div style="color:var(--text-secondary);font-size:14px;">
+            Joined {{ user.joined_date.strftime('%B %d, %Y') }} •
+            Reputation: <strong>{{ user.reputation }}</strong> •
+            Posts: <strong>{{ user.post_count() }}</strong> •
+            Comments: <strong>{{ user.comment_count() }}</strong>
+        </div>
+        {% if user.bio %}
+            <div style="background:var(--hover-bg);padding:16px;border-radius:8px;margin-top:12px;color:var(--text-secondary);">
+                {{ user.bio }}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Follow Button (only if logged in and not viewing self) -->
+    {% if current_user.is_authenticated and current_user.id != user.id %}
+        <form method="POST" action="{{ url_for('follow_user', user_id=user.id) }}" style="margin-left:auto;">
+            <button type="submit" style="background:{% if is_following %}#ef4444{% else %}#2563eb{% endif %};color:#fff;padding:10px 24px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:background 0.3s;">
+                {% if is_following %}
+                    <i class="fas fa-user-minus"></i> Unfollow
+                {% else %}
+                    <i class="fas fa-user-plus"></i> Follow
+                {% endif %}
+            </button>
+        </form>
+    {% endif %}
+
+    <!-- Edit Profile (if viewing own profile) -->
+    {% if current_user.id == user.id %}
+        <a href="{{ url_for('edit_profile') }}" style="background:#2563eb;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;margin-left:auto;font-weight:600;">
+            <i class="fas fa-edit"></i> Edit Profile
+        </a>
+    {% endif %}
+</div>
+
+<!-- Posts by this user -->
+<h2 style="margin-bottom:16px;">Posts by {{ user.username }}</h2>
+{% if posts %}
+    {% for post in posts %}
+        <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;padding:16px;margin-bottom:12px;transition:border-color 0.3s;">
+            <a href="{{ url_for('view_post', post_id=post.id) }}" style="font-size:18px;font-weight:600;color:var(--text-primary);text-decoration:none;">
+                {{ post.title }}
+            </a>
+            <div style="color:var(--text-muted);font-size:13px;margin-top:4px;">
+                {{ post.timestamp.strftime('%b %d, %Y') }} •
+                {{ post.comment_count() }} comments •
+                {{ post.views }} views
+                {% if post.category %}
+                    <span style="background:#2563eb;color:#fff;padding:2px 10px;border-radius:12px;font-size:11px;margin-left:8px;">
+                        {{ post.category.name }}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p style="color:var(--text-muted);">No posts yet.</p>
+{% endif %}
+
+<p style="margin-top:20px;"><a href="/">← Back to Home</a></p>
+
+{% endblock %}

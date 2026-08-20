@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="font-size:28px;margin-bottom:8px;">Welcome to Megatek ICT Academy Forum</h1>
+<p style="color:var(--text-secondary);margin-bottom:24px;">Ask questions, share knowledge, and learn together!</p>
+{% if posts.items %}
+    {% for post in posts.items %}
+    <div class="post-card">
+        <a href="{{ url_for('view_post', post_id=post.id) }}" class="post-title">{{ post.title }}</a>
+        <div class="post-meta">
+            Posted by <a href="/profile/{{ post.author.id }}">{{ post.author.username }}</a> •
+            {{ post.timestamp.strftime('%b %d, %Y at %H:%M') }} •
+            <i class="far fa-comment"></i> {{ post.comment_count() }} replies •
+            <i class="far fa-eye"></i> {{ post.views }} views •
+            <i class="fas fa-thumbs-up"></i> <span class="upvote-count" data-post-id="{{ post.id }}">{{ post.upvote_count() }}</span>
+            {% if post.category %}<span style="background:#2563eb;color:#fff;padding:2px 10px;border-radius:12px;font-size:11px;">{{ post.category.name }}</span>{% endif %}
+        </div>
+        <div class="post-excerpt">{{ post.content[:300] }}{% if post.content|length > 300 %}...{% endif %}</div>
+        {% if post.image %}<div class="post-image"><img src="{{ url_for('static', filename='uploads/' + post.image) }}" alt="Post image"></div>{% endif %}
+        {% if post.tags %}<div class="post-tags">{% for pt in post.tags %}<a href="/tag/{{ pt.tag.name }}" class="tag">#{{ pt.tag.name }}</a>{% endfor %}</div>{% endif %}
+        <div class="post-actions">
+            <button class="upvote-btn {% if current_user.is_authenticated and post.upvotes|selectattr('user_id', 'equalto', current_user.id)|list %}upvoted{% endif %}" onclick="upvotePost({{ post.id }}, this)"><i class="fas fa-thumbs-up"></i> <span class="upvote-count">{{ post.upvote_count() }}</span></button>
+            <a href="{{ url_for('view_post', post_id=post.id) }}"><i class="far fa-comment"></i> {{ post.comment_count() }} comments</a>
+            {% if current_user.id == post.author.id or current_user.is_admin %}
+                <a href="{{ url_for('edit_post', post_id=post.id) }}"><i class="fas fa-edit"></i> Edit</a>
+                <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}" style="display:inline;"><button type="submit" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:13px;" onclick="return confirm('Delete this post?')"><i class="fas fa-trash"></i> Delete</button></form>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    <div class="pagination">
+        {% if posts.has_prev %}<a href="{{ url_for('index', page=posts.prev_num) }}">« Previous</a>{% endif %}
+        {% for page_num in posts.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}{% if page_num %}{% if page_num == posts.page %}<span class="active">{{ page_num }}</span>{% else %}<a href="{{ url_for('index', page=page_num) }}">{{ page_num }}</a>{% endif %}{% else %}<span>…</span>{% endif %}{% endfor %}
+        {% if posts.has_next %}<a href="{{ url_for('index', page=posts.next_num) }}">Next »</a>{% endif %}
+    </div>
+{% else %}
+    <p style="color:var(--text-secondary);">No posts yet. Be the first to <a href="/post/new">create a post</a>!</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Edit Post</h1>
+<form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div>{{ form.title.label(style="font-weight:600;") }}{{ form.title(size=64, style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}</div>
+    <div style="margin-top:12px;">{{ form.category_id.label(style="font-weight:600;") }}{{ form.category_id(style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}</div>
+    <div style="margin-top:12px;">{{ form.tags.label(style="font-weight:600;") }}{{ form.tags(size=64, style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}<small style="color:var(--text-muted);font-size:12px;"> Comma separated</small></div>
+    <div style="margin-top:12px;">{{ form.content.label(style="font-weight:600;") }}{{ form.content(rows=10, style="width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;") }}</div>
+    <div style="margin-top:12px;"><input type="file" name="image" accept="image/*">{% if post.image %}<span style="margin-left:12px;color:var(--text-muted);font-size:13px;">Current: {{ post.image }}</span>{% endif %}</div>
+    <div style="margin-top:16px;">{{ form.submit(class="btn", style="background:#2563eb;color:#fff;padding:10px 30px;border:none;border-radius:8px;cursor:pointer;font-size:16px;") }} <a href="{{ url_for('view_post', post_id=post.id) }}" style="color:var(--text-secondary);margin-left:12px;text-decoration:none;">Cancel</a></div>
+</form>
+{% endblock %}

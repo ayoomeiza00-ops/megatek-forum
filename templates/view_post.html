@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin-bottom:20px;"><a href="/" style="color:var(--text-secondary);text-decoration:none;">← Back to Home</a></div>
+<h1 style="font-size:28px;margin-bottom:8px;">{{ post.title }}</h1>
+<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;color:var(--text-secondary);font-size:14px;">
+    Posted by <a href="/profile/{{ post.author.id }}" style="color:var(--text-primary);font-weight:600;">{{ post.author.username }}</a> •
+    {{ post.timestamp.strftime('%B %d, %Y at %H:%M') }}
+    {% if post.updated_at != post.timestamp %} • <span style="color:var(--text-muted);">Last edited: {{ post.updated_at.strftime('%b %d, %H:%M') }}</span>{% endif %}
+    • <i class="far fa-eye"></i> {{ post.views }} views
+    • <i class="fas fa-thumbs-up"></i> <span class="upvote-count-post">{{ post.upvote_count() }}</span>
+    {% if post.category %}<span style="background:#2563eb;color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;">{{ post.category.name }}</span>{% endif %}
+</div>
+<div style="background:var(--hover-bg);padding:24px;border-radius:8px;border:1px solid var(--border-color);font-size:15px;line-height:1.8;">{{ post.content|markdown }}</div>
+{% if post.image %}<div style="margin:16px 0;"><img src="{{ url_for('static', filename='uploads/' + post.image) }}" alt="Post image" style="max-width:100%;max-height:400px;border-radius:8px;"></div>{% endif %}
+{% if post.tags %}<div style="margin:16px 0;display:flex;flex-wrap:wrap;gap:6px;">{% for pt in post.tags %}<a href="/tag/{{ pt.tag.name }}" style="background:var(--hover-bg);padding:4px 12px;border-radius:20px;font-size:13px;color:var(--text-secondary);text-decoration:none;">#{{ pt.tag.name }}</a>{% endfor %}</div>{% endif %}
+<div style="display:flex;gap:16px;margin:16px 0;flex-wrap:wrap;">
+    <button class="upvote-btn {% if current_user.is_authenticated and post.upvotes|selectattr('user_id', 'equalto', current_user.id)|list %}upvoted{% endif %}" onclick="upvotePost({{ post.id }}, this)" style="background:none;border:1px solid var(--border-color);padding:8px 20px;border-radius:20px;cursor:pointer;font-size:14px;transition:all 0.3s;"><i class="fas fa-thumbs-up"></i> <span class="upvote-count">{{ post.upvote_count() }}</span></button>
+    {% if current_user.id == post.author.id or current_user.is_admin %}
+        <a href="{{ url_for('edit_post', post_id=post.id) }}" style="background:var(--hover-bg);padding:8px 20px;border-radius:8px;text-decoration:none;color:var(--text-secondary);">Edit Post</a>
+        <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}" style="display:inline;"><button type="submit" style="background:none;border:1px solid #ef4444;padding:8px 20px;border-radius:8px;cursor:pointer;color:#ef4444;font-size:14px;" onclick="return confirm('Delete this post?')">Delete Post</button></form>
+    {% endif %}
+</div>
+<hr style="border-color:var(--border-color);margin:24px 0;">
+<h3 style="margin-bottom:16px;">Comments ({{ comments|length }})</h3>
+{% if current_user.is_authenticated %}
+<form method="POST" enctype="multipart/form-data" style="margin-bottom:24px;">
+    {{ form.hidden_tag() }}
+    <div>{{ form.content.label(style="font-weight:600;") }}{{ form.content(rows=4, style="width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;") }}</div>
+    <div>{{ form.parent_id.label(style="font-weight:600;") }}{{ form.parent_id(style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}</div>
+    <div style="margin-top:10px;"><input type="file" name="image" accept="image/*"></div>
+    <div style="margin-top:10px;">{{ form.submit(class="btn", style="background:#2563eb;color:#fff;padding:10px 30px;border:none;border-radius:8px;cursor:pointer;font-size:16px;") }}</div>
+</form>
+{% else %}<p style="margin-bottom:24px;color:var(--text-secondary);"><a href="/login">Login</a> to add a comment.</p>{% endif %}
+{% if comments %}{% for comment in comments %}
+<div class="comment">
+    <div class="comment-meta">
+        <div><strong><a href="/profile/{{ comment.author.id }}">{{ comment.author.username }}</a></strong> <span style="color:var(--text-muted);font-size:13px;margin-left:8px;">{{ comment.timestamp.strftime('%b %d, %Y at %H:%M') }}{% if comment.updated_at != comment.timestamp %} (edited){% endif %}</span></div>
+        <div class="comment-actions">
+            <button onclick="upvoteComment({{ comment.id }}, this)" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-size:13px;"><i class="fas fa-thumbs-up"></i> <span class="upvote-count">{{ comment.upvote_count() }}</span></button>
+            {% if current_user.id == comment.author.id or current_user.is_admin %}<a href="{{ url_for('edit_comment', comment_id=comment.id) }}" style="color:var(--text-secondary);text-decoration:none;"><i class="fas fa-edit"></i></a>
+            <form method="POST" action="{{ url_for('delete_comment', comment_id=comment.id) }}" style="display:inline;"><button type="submit" style="background:none;border:none;cursor:pointer;color:#ef4444;font-size:13px;" onclick="return confirm('Delete this comment?')"><i class="fas fa-trash"></i></button></form>{% endif %}
+        </div>
+    </div>
+    <div class="comment-content">{{ comment.content|markdown }}</div>
+    {% if comment.image %}<div class="comment-image"><img src="{{ url_for('static', filename='uploads/' + comment.image) }}" alt="Comment image"></div>{% endif %}
+    {% if comment.replies %}
+        <div class="reply-thread">
+        {% for reply in comment.replies %}
+            <div class="reply">
+                <div class="reply-meta">
+                    <div><strong><a href="/profile/{{ reply.author.id }}">{{ reply.author.username }}</a></strong> <span style="color:var(--text-muted);font-size:12px;margin-left:8px;">{{ reply.timestamp.strftime('%b %d, %H:%M') }}</span></div>
+                    <div class="reply-actions">
+                        <button onclick="upvoteComment({{ reply.id }}, this)" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-size:12px;"><i class="fas fa-thumbs-up"></i> <span class="upvote-count">{{ reply.upvote_count() }}</span></button>
+                        {% if current_user.id == reply.author.id or current_user.is_admin %}<a href="{{ url_for('edit_comment', comment_id=reply.id) }}" style="color:var(--text-secondary);text-decoration:none;"><i class="fas fa-edit"></i></a>
+                        <form method="POST" action="{{ url_for('delete_comment', comment_id=reply.id) }}" style="display:inline;"><button type="submit" style="background:none;border:none;cursor:pointer;color:#ef4444;font-size:12px;" onclick="return confirm('Delete this comment?')"><i class="fas fa-trash"></i></button></form>{% endif %}
+                    </div>
+                </div>
+                <div class="reply-content">{{ reply.content|markdown }}</div>
+                {% if reply.image %}<div class="comment-image"><img src="{{ url_for('static', filename='uploads/' + reply.image) }}" alt="Comment image"></div>{% endif %}
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endfor %}{% else %}<p style="color:var(--text-secondary);">No comments yet. Be the first to comment!</p>{% endif %}
+{% endblock %}

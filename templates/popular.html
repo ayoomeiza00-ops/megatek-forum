@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Popular Posts</h1>
+<p style="color:var(--text-secondary);margin-bottom:20px;">Most viewed posts</p>
+{% if posts %}
+    {% for post in posts %}
+    <div class="post-card">
+        <a href="{{ url_for('view_post', post_id=post.id) }}" class="post-title">{{ post.title }}</a>
+        <div class="post-meta">
+            Posted by <a href="/profile/{{ post.author.id }}">{{ post.author.username }}</a> •
+            {{ post.timestamp.strftime('%b %d, %Y') }} •
+            <i class="far fa-eye"></i> {{ post.views }} views •
+            <i class="fas fa-thumbs-up"></i> {{ post.upvote_count() }}
+        </div>
+        <div class="post-excerpt">{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</div>
+        <div class="post-actions"><a href="{{ url_for('view_post', post_id=post.id) }}">{{ post.comment_count() }} comments</a></div>
+    </div>
+    {% endfor %}
+{% else %}<p style="color:var(--text-muted);">No posts yet.</p>{% endif %}
+<p><a href="/">← Back to Home</a></p>
+{% endblock %}

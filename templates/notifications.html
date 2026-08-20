@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Notifications</h1>
+{% if notifications %}{% for n in notifications %}<div style="background:var(--hover-bg);padding:12px 16px;border-radius:8px;margin-bottom:8px;border-left:3px solid #2563eb;"><div style="display:flex;justify-content:space-between;"><span>{{ n.message }}</span><span style="color:var(--text-muted);font-size:12px;">{{ n.timestamp.strftime('%b %d, %H:%M') }}</span></div>{% if n.post_id %}<a href="/post/{{ n.post_id }}" style="font-size:13px;color:#2563eb;text-decoration:none;">View post →</a>{% endif %}</div>{% endfor %}{% else %}<p style="color:var(--text-muted);">No notifications yet.</p>{% endif %}
+<p><a href="/">← Back to Home</a></p>
+{% endblock %}

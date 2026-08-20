@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Search Results</h1>
+<p style="color:var(--text-secondary);margin-bottom:20px;">Results for: "<strong>{{ query }}</strong>"</p>
+{% if posts %}{% for post in posts %}<div class="post-card"><a href="{{ url_for('view_post', post_id=post.id) }}" class="post-title">{{ post.title }}</a><div class="post-meta">Posted by <a href="/profile/{{ post.author.id }}">{{ post.author.username }}</a> on {{ post.timestamp.strftime('%b %d, %Y') }}</div><div class="post-excerpt">{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</div><div class="post-actions"><a href="{{ url_for('view_post', post_id=post.id) }}">{{ post.comment_count() }} comments</a></div></div>{% endfor %}{% else %}<p style="color:var(--text-secondary);">No results found for "{{ query }}".</p>{% endif %}
+<p><a href="/">← Back to Home</a></p>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Edit Draft</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>{{ form.title.label(style="font-weight:600;") }}{{ form.title(size=64, style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}</div>
+    <div style="margin-top:12px;">{{ form.category_id.label(style="font-weight:600;") }}{{ form.category_id(style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}</div>
+    <div style="margin-top:12px;">{{ form.tags.label(style="font-weight:600;") }}{{ form.tags(size=64, style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}</div>
+    <div style="margin-top:12px;">{{ form.content.label(style="font-weight:600;") }}{{ form.content(rows=10, style="width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;") }}</div>
+    <div style="margin-top:16px;">{{ form.submit(class="btn", style="background:#2563eb;color:#fff;padding:10px 30px;border:none;border-radius:8px;cursor:pointer;font-size:16px;") }}</div>
+</form>
+<p><a href="/drafts">← Back to Drafts</a></p>
+{% endblock %}

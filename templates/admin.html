@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Admin Dashboard</h1>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:30px;">
+    <div style="background:var(--hover-bg);padding:20px;border-radius:8px;text-align:center;"><div style="font-size:32px;font-weight:700;color:#2563eb;">{{ users|length }}</div><div style="color:var(--text-muted);">Total Users</div></div>
+    <div style="background:var(--hover-bg);padding:20px;border-radius:8px;text-align:center;"><div style="font-size:32px;font-weight:700;color:#2563eb;">{{ posts|length }}</div><div style="color:var(--text-muted);">Total Posts</div></div>
+    <div style="background:var(--hover-bg);padding:20px;border-radius:8px;text-align:center;"><div style="font-size:32px;font-weight:700;color:#2563eb;">{{ comments|length }}</div><div style="color:var(--text-muted);">Total Comments</div></div>
+</div>
+<h2>Users</h2>
+<table style="width:100%;border-collapse:collapse;font-size:14px;">
+    <thead><tr style="border-bottom:2px solid var(--border-color);"><th style="text-align:left;padding:10px;">Username</th><th style="text-align:left;padding:10px;">Email</th><th style="text-align:left;padding:10px;">Posts</th><th style="text-align:left;padding:10px;">Joined</th><th style="text-align:left;padding:10px;">Actions</th></tr></thead>
+    <tbody>{% for user in users %}<tr style="border-bottom:1px solid var(--border-color);"><td style="padding:10px;">{{ user.username }}</td><td style="padding:10px;">{{ user.email or '-' }}</td><td style="padding:10px;">{{ user.post_count() }}</td><td style="padding:10px;">{{ user.joined_date.strftime('%Y-%m-%d') }}</td><td style="padding:10px;"><form method="POST" action="{{ url_for('admin_make_admin', user_id=user.id) }}" style="display:inline;"><button type="submit" style="background:#2563eb;color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">Make Admin</button></form> <form method="POST" action="{{ url_for('admin_delete_user', user_id=user.id) }}" style="display:inline;"><button type="submit" style="background:#ef4444;color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;" onclick="return confirm('Delete user?')">Delete</button></form></td></tr>{% endfor %}</tbody>
+</table>
+{% endblock %}

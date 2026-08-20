@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>All Tags</h1>
+{% if tags %}
+    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+    {% for tag in tags %}
+        <a href="/tag/{{ tag.name }}" style="background:var(--hover-bg);padding:10px 20px;border-radius:20px;font-size:16px;color:var(--text-secondary);text-decoration:none;border:1px solid var(--border-color);">
+            #{{ tag.name }}
+        </a>
+    {% endfor %}
+    </div>
+{% else %}<p style="color:var(--text-muted);">No tags yet.</p>{% endif %}
+<p><a href="/">← Back to Home</a></p>
+{% endblock %}

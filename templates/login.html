@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Login</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>{{ form.username.label(style="font-weight:600;") }}{{ form.username(size=40, style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}</div>
+    <div style="margin-top:12px;">{{ form.password.label(style="font-weight:600;") }}{{ form.password(size=40, style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}</div>
+    <div style="margin-top:16px;">{{ form.submit(class="btn", style="background:#2563eb;color:#fff;padding:10px 30px;border:none;border-radius:8px;cursor:pointer;font-size:16px;") }}</div>
+</form>
+<p style="margin-top:12px;"><a href="{{ url_for('forgot_password') }}" style="color:#2563eb;text-decoration:none;">Forgot Password?</a></p>
+<p>Don't have an account? <a href="/register">Register</a></p>
+{% endblock %}

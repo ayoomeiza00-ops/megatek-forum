@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Edit Profile</h1>
+<form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div>{{ form.username.label(style="font-weight:600;") }}{{ form.username(size=40, style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}</div>
+    <div style="margin-top:12px;">{{ form.email.label(style="font-weight:600;") }}{{ form.email(size=40, style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);") }}</div>
+    <div style="margin-top:12px;">{{ form.bio.label(style="font-weight:600;") }}{{ form.bio(rows=5, style="width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;") }}</div>
+    <div style="margin-top:12px;">{{ form.dark_mode.label(style="font-weight:600;") }}{{ form.dark_mode(style="margin-left:10px;") }}</div>
+    <div style="margin-top:12px;"><label style="font-weight:600;">Profile Picture</label><input type="file" name="avatar" accept="image/*"></div>
+    <div style="margin-top:16px;">{{ form.submit(class="btn", style="background:#2563eb;color:#fff;padding:10px 30px;border:none;border-radius:8px;cursor:pointer;font-size:16px;") }} <a href="{{ url_for('profile', user_id=current_user.id) }}" style="color:var(--text-secondary);margin-left:12px;text-decoration:none;">Cancel</a></div>
+</form>
+{% endblock %}
