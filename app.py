@@ -18,7 +18,7 @@ from flask_ckeditor import CKEditor, CKEditorField
 
 app = Flask(__name__)
 
-# ========== ENSURE INSTANCE FOLDER EXISTS (FIX FOR RENDER) ==========
+# ========== ENSURE INSTANCE FOLDER EXISTS ==========
 instance_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
 if not os.path.exists(instance_path):
     os.makedirs(instance_path)
@@ -28,7 +28,6 @@ if not os.path.exists(instance_path):
 app.config['SECRET_KEY'] = 'ca94d08efa47d184f635d69c0cdd9191fcd522c86ad4ea053684b60bff752165'
 
 # ========== DATABASE ==========
-# Use absolute path to ensure Render can write to it
 db_path = os.path.join(instance_path, 'forum.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -296,13 +295,9 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('Email already registered.')
-        try:
-            is_valid = validate_email(email.data, verify=True)
-            if not is_valid:
-                raise ValidationError('Please enter a valid email address (no temporary/disposable emails).')
-        except:
-            if '@' not in email.data or '.' not in email.data.split('@')[-1]:
-                raise ValidationError('Please enter a valid email address.')
+        # Just basic format check (no external verification)
+        if '@' not in email.data or '.' not in email.data.split('@')[-1]:
+            raise ValidationError('Please enter a valid email address.')
 
 class VerificationForm(FlaskForm):
     code = StringField('Verification Code', validators=[DataRequired(), Length(min=6, max=6)])
@@ -330,6 +325,8 @@ class ProfileForm(FlaskForm):
     email = StringField('Email', validators=[Email(), Length(max=120)])
     bio = TextAreaField('Bio')
     dark_mode = BooleanField('Dark Mode')
+    password = PasswordField('New Password (leave blank to keep current)')
+    confirm_password = PasswordField('Confirm New Password', validators=[EqualTo('password')])
     submit = SubmitField('Update Profile')
 
 class PrivateMessageForm(FlaskForm):
@@ -380,9 +377,10 @@ Megatek ICT Academy Team
     )
     try:
         mail.send(msg)
+        print(f"✅ Verification email sent to {user.email}")
         return True
     except Exception as e:
-        print(f"Email sending failed: {e}")
+        print(f"❌ Email sending failed: {e}")
         return False
 
 def send_reset_email(user):
@@ -411,12 +409,13 @@ Megatek ICT Academy Team
     )
     try:
         mail.send(msg)
+        print(f"✅ Reset email sent to {user.email}")
         return True
     except Exception as e:
-        print(f"Email sending failed: {e}")
+        print(f"❌ Email sending failed: {e}")
         return False
 
-# ========== SETUP ROUTE (ONE-TIME USE) ==========
+# ========== SETUP ROUTE ==========
 @app.route('/setup')
 def setup():
     with app.app_context():
@@ -424,7 +423,6 @@ def setup():
         seed_categories()
         seed_tags()
         
-        # Check if admin exists
         admin = User.query.filter_by(username='Olodo uprising').first()
         if not admin:
             admin = User(username='Olodo uprising', email='ayoomeiza00@gmail.com')
@@ -441,7 +439,7 @@ def setup():
                 <li><strong>Password:</strong> 12345678</li>
             </ul>
             <p><a href="/login">Click here to login</a></p>
-            <p style="color:red;font-size:12px;"><strong>IMPORTANT:</strong> After logging in, go to Profile → Edit Profile and change your password!</p>
+            <p style="color:red;font-size:12px;"><strong>IMPORTANT:</strong> Change your password immediately after logging in!</p>
             """
         else:
             return """
@@ -540,7 +538,7 @@ def register():
             flash('A verification code has been sent to your email.', 'info')
             return redirect(url_for('verify_email', user_id=user.id))
         else:
-            flash('Could not send verification email.', 'danger')
+            flash('Could not send verification email. Please check your email settings.', 'danger')
             return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
@@ -989,6 +987,12 @@ def edit_profile():
         current_user.email = form.email.data
         current_user.bio = form.bio.data
         current_user.dark_mode = form.dark_mode.data
+        
+        # Update password if provided
+        if form.password.data:
+            current_user.set_password(form.password.data)
+            flash('Password updated!', 'success')
+        
         if 'avatar' in request.files:
             file = request.files['avatar']
             if file and file.filename and allowed_file(file.filename):
@@ -997,9 +1001,11 @@ def edit_profile():
                 filename = secure_filename(f"avatar_{current_user.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 current_user.avatar = filename
+        
         db.session.commit()
         flash('Profile updated!', 'success')
         return redirect(url_for('profile', user_id=current_user.id))
+    
     form.username.data = current_user.username
     form.email.data = current_user.email
     form.bio.data = current_user.bio
