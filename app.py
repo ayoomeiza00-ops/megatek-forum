@@ -61,6 +61,11 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# ========== DATABASE INITIALIZATION ==========
+db = SQLAlchemy(app)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+
 # ========== CONTEXT ==========
 @app.context_processor
 def inject_unread():
@@ -79,11 +84,6 @@ def markdown_filter(text):
     if text:
         return Markup(markdown.markdown(text, extensions=['fenced_code', 'tables', 'nl2br']))
     return ''
-
-# ========== DATABASE ==========
-db = SQLAlchemy(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
 
 # ========== MODELS ==========
 
@@ -1136,7 +1136,8 @@ def seed_tags():
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# ========== AUTOMATIC SETUP ON STARTUP (Runs on Render) ==========
+# ========== AUTOMATIC SETUP ON STARTUP ==========
+# This runs when the app is imported (including on Render)
 with app.app_context():
     db.create_all()
     seed_categories()
