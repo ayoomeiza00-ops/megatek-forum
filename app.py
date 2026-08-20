@@ -16,7 +16,6 @@ from validate_email import validate_email
 from flask_mail import Mail, Message
 from flask_ckeditor import CKEditor, CKEditorField
 
-
 app = Flask(__name__)
 
 # ========== ENSURE INSTANCE FOLDER EXISTS (FIX FOR RENDER) ==========
@@ -29,9 +28,11 @@ if not os.path.exists(instance_path):
 app.config['SECRET_KEY'] = 'ca94d08efa47d184f635d69c0cdd9191fcd522c86ad4ea053684b60bff752165'
 
 # ========== DATABASE ==========
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/forum.db'
+# Use absolute path to ensure Render can write to it
+db_path = os.path.join(instance_path, 'forum.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+print(f"✅ Database path: {db_path}")
 
 # ========== EMAIL ==========
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -448,6 +449,7 @@ def setup():
             <p>Admin account already exists.</p>
             <p><a href="/login">Click here to login</a></p>
             """
+
 # ========== ROUTES ==========
 
 @app.route('/')
