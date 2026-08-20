@@ -407,6 +407,39 @@ Megatek ICT Academy Team
         print(f"Email sending failed: {e}")
         return False
 
+# ========== SETUP ROUTE (ONE-TIME USE) ==========
+@app.route('/setup')
+def setup():
+    with app.app_context():
+        db.create_all()
+        seed_categories()
+        seed_tags()
+        
+        # Check if admin exists
+        admin = User.query.filter_by(username='Olodo uprising').first()
+        if not admin:
+            admin = User(username='Olodo uprising', email='ayoomeiza00@gmail.com')
+            admin.set_password('12345678')
+            admin.is_admin = True
+            admin.email_verified = True
+            db.session.add(admin)
+            db.session.commit()
+            return """
+            <h2>✅ Setup Complete!</h2>
+            <p><strong>Admin account created:</strong></p>
+            <ul>
+                <li><strong>Username:</strong> Olodo uprising</li>
+                <li><strong>Password:</strong> 12345678</li>
+            </ul>
+            <p><a href="/login">Click here to login</a></p>
+            <p style="color:red;font-size:12px;"><strong>IMPORTANT:</strong> After logging in, go to Profile → Edit Profile and change your password!</p>
+            """
+        else:
+            return """
+            <h2>⚠️ Setup Already Run</h2>
+            <p>Admin account already exists.</p>
+            <p><a href="/login">Click here to login</a></p>
+            """
 # ========== ROUTES ==========
 
 @app.route('/')
