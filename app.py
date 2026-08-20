@@ -16,7 +16,14 @@ from validate_email import validate_email
 from flask_mail import Mail, Message
 from flask_ckeditor import CKEditor, CKEditorField
 
+
 app = Flask(__name__)
+
+# ========== ENSURE INSTANCE FOLDER EXISTS (FIX FOR RENDER) ==========
+instance_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
+if not os.path.exists(instance_path):
+    os.makedirs(instance_path)
+    print(f"✅ Created instance folder at: {instance_path}")
 
 # ========== SECURITY ==========
 app.config['SECRET_KEY'] = 'ca94d08efa47d184f635d69c0cdd9191fcd522c86ad4ea053684b60bff752165'
@@ -24,6 +31,7 @@ app.config['SECRET_KEY'] = 'ca94d08efa47d184f635d69c0cdd9191fcd522c86ad4ea053684
 # ========== DATABASE ==========
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/forum.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 # ========== EMAIL ==========
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
