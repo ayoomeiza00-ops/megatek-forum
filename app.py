@@ -295,7 +295,6 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('Email already registered.')
-        # Just basic format check (no external verification)
         if '@' not in email.data or '.' not in email.data.split('@')[-1]:
             raise ValidationError('Please enter a valid email address.')
 
@@ -414,7 +413,6 @@ Megatek ICT Academy Team
     except Exception as e:
         print(f"❌ Email sending failed: {e}")
         return False
-
 
 # ========== ROUTES ==========
 
@@ -956,7 +954,6 @@ def edit_profile():
         current_user.bio = form.bio.data
         current_user.dark_mode = form.dark_mode.data
         
-        # Update password if provided
         if form.password.data:
             current_user.set_password(form.password.data)
             flash('Password updated!', 'success')
@@ -1139,9 +1136,25 @@ def seed_tags():
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# ========== AUTOMATIC SETUP ON STARTUP (Runs on Render) ==========
+with app.app_context():
+    db.create_all()
+    seed_categories()
+    seed_tags()
+    
+    # Create admin if not exists
+    admin = User.query.filter_by(username='Olodo uprising').first()
+    if not admin:
+        admin = User(username='Olodo uprising', email='ayoomeiza00@gmail.com')
+        admin.set_password('12345678')
+        admin.is_admin = True
+        admin.email_verified = True
+        db.session.add(admin)
+        db.session.commit()
+        print("✅ Admin created automatically.")
+    else:
+        print("✅ Admin already exists.")
+
+# ========== RUN APP ==========
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        seed_categories()
-        seed_tags()
     app.run(debug=True)
